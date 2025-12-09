@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dataset</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+<div class="container dataset-page">
+  <button class="back-btn" onclick="goBack()">← Back</button>
+  <h1 id="title">Dataset</h1>
+  <div id="form-area"></div>
+  <button id="process-btn" onclick="processData()">Predict</button>
+  <div id="result">Result: —</div>
+</div>
+
+<script>
+let datasetName = new URLSearchParams(window.location.search).get('name');
+let datasetData = null;
+
+new QWebChannel(qt.webChannelTransport, function(channel) {
+  window.bridge = channel.objects.bridge;
+  bridge.loadDataset(datasetName);
+});
+
+function receiveFromPython(data) {
+  // agar JSON string aaye to parse karo
+  if (typeof data === "string") data = JSON.parse(data);
+
+  // agar result aya ho to show kar do
+  if (data.result) {
+    document.getElementById("result").innerText = "Result: " + data.result;
+    return;
+  }
+
+  // agar error aaye
+  if (data.error) {
+    alert(data.error);
+    return;
+  }
+
+  // otherwise dataset load karna hai
+  datasetData = data;
+  document.getElementById("title").innerText = datasetName.toUpperCase();
+  const formArea = document.getElementById("form-area");
+  formArea.innerHTML = "";
+
+  data.columns.forEach(col => {
+    let label = document.createElement("label");
+    label.textContent = col + ":";
+    let select = document.createElement("select");
+
+
+    // 🔹 dataset se options add kar rahe hain
+    data.dropdowns[col].forEach(opt => {
+  let o = document.createElement("option");
+  o.text = opt;
+  select.add(o);
+});
+
+
+    select.id = col;
+    formArea.appendChild(label);
+    formArea.appendChild(select);
+  });
+}
+
+function processData() {
+  let inputs = {};
+  datasetData.columns.forEach(c => {
+    let value = document.getElementById(c).value;
+    if (value !== "none") {
+      // 🔹 "None" selected values ignore hongi
+      inputs[c] = value;
+    }
+  });
+
+  bridge.predict(datasetName, JSON.stringify(inputs));
+}
+
+function goBack() {
+  window.location.href = "index.html";
+}
+</script>
+</body>
+</html>
