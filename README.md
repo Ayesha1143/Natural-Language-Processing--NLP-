@@ -6,30 +6,6 @@ This repository contains a desktop-based Python application that allows users to
 
 ---
 
-## 📂 Repository Structure
-
-
-
-pythonProject/
-│
-├── .venv/ # Python virtual environment
-├── data/ # CSV datasets for predictions
-│ ├── animal.csv
-│ ├── email.csv
-│ ├── loan.csv
-│ └── weather.csv
-├── web/ # UI files (HTML/CSS) for desktop interface
-│ ├── background.jpg
-│ ├── dataset.html
-│ ├── index.html
-│ └── style.css
-├── .gitignore
-├── app.py # Main Python script for Naive Bayes predictions
-└── README.md
-
-
----
-
 ## 🛠 Features
 
 - **Offline Desktop Application** — No internet required.
